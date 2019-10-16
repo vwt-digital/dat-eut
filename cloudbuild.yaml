@@ -1,0 +1,45 @@
+# Other steps
+
+
+# Run npm e2e tests
+- name: 'colthreepv/node-chrome'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    if [ "$BRANCH_NAME" == "develop" ]; then
+      pushd /
+      wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      apt install ./google-chrome-stable_current_amd64.deb
+      popd
+      npm install @angular/cli
+      npm install
+      (date +%T)>../../eut/start_time
+      npm run e2e
+      if [[ $? -ne 0 ]] ; then 
+        exit 1 
+      fi
+    fi
+  dir: 'expenses/pipeline'
+
+
+# Run EUT test
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    if [ "$BRANCH_NAME" == "develop" ]; then
+      cd ../../eut
+      bash eut-pointed.sh $(<start_time) ${PROJECT_ID}
+      if [[ $? -ne 0 ]] ; then
+        exit 1;
+      fi
+      rm -f ns-*.html
+      rm -rf node_modules
+    fi
+  dir: 'expenses/pipeline'
+
+
+
+# // END
