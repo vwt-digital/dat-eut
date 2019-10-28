@@ -4,6 +4,6 @@ touch requests.txt;touch specs.txt
 for spec in $api;do echo $spec>>specs.txt;done
 for req in $strep
 do if [[ "$(echo $req|cut -d'|' -f1)">$1 ]];then echo $req|cut -d'|' -f2>>requests.txt;fi;done
-script=$(python eut.py requests.txt specs.txt)
+script=$(python eac.py requests.txt specs.txt)
 rm requests.txt;rm specs.txt
-if [[ $script != 1 ]];then echo "EUT FAILED: Not all endpoints were tested by e2e";exit 1;else echo "EUT PASSED: All endpoints were tested e2e";exit 0;fi
+if [[ $script != 1 ]];then echo "EAC FAILED: Not all endpoints were tested by e2e";exit 1;else echo "EAC PASSED: All endpoints were tested e2e";exit 0;fi
