@@ -13,9 +13,6 @@ with open(sys.argv[2], 'r') as f:
 for spec in specs:
 	request_url = re.sub("{.*?}", r"([^/]+)", spec) + '$'
 	possible_urls = list(filter(re.compile(request_url).match, requests))
-	print("\n")
-	print(spec)
-	print(request_url, possible_urls)
 	if not possible_urls:
 		notfound += spec + ' '
 if len(notfound) == 0:
