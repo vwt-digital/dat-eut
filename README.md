@@ -65,7 +65,8 @@ Example:
 
 ```
 
-Make sure it is linked to the URL directly (and also check Zally)
+Make sure it is linked to the URL directly (and also check Zally).
+Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
 
 ## Requirements
 For this test to work, the application to be tested needs to use [FLASH Auditlog](https://github.com/vwt-digital/flask-auditlog)
@@ -75,6 +76,8 @@ The security_controller also needs to have the following in ```info_from_oAuth2`
         g.user = result.get('upn', 'e2e-technical-user')
         g.token = result
 ```
+
+Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
 
 ## Explanation
 
