@@ -7,6 +7,7 @@ This project is using Python 3 and Bash
 Before you run your e2e test, copy this into your cloudbuild.yaml:
 
 ```bash 
+touch start_time
 (date +%T)>start_time 
 ```
 (Can also be 0 for global test without time restrictions)
@@ -25,6 +26,7 @@ Add the following AFTER your e2e test:
       curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.sh
       curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.py
       bash eac.sh $(<start_time) ${PROJECT_ID}
+      rm start_time
     fi
   dir: 'expenses/pipeline'
 
