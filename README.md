@@ -44,6 +44,28 @@ Running the eac.sh with the time set before the e2e test and the project id.
  bash eac.sh $(<start_time) ${PROJECT_ID} 
 ```
 
+## Ignore
+
+You can ignore URLs from your API by adding the following to the spec URL in your yaml file:
+```bash
+    x-eac-ignore: true
+```
+
+Example:
+```bash
+
+  /url/to/ignore:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/step'
+      responses:
+        '200':
+          description: Succesful
+    x-eac-ignore: true
+
+```
+
+Make sure it is linked to the URL directly (and also check Zally)
 
 ## Requirements
 For this test to work, the application to be tested needs to use [FLASH Auditlog](https://github.com/vwt-digital/flask-auditlog)
