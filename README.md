@@ -50,7 +50,7 @@ Running the eac.sh with the time set before the e2e test and the project id.
 
 You can ignore URLs from your API by adding the following to the spec URL in your yaml file:
 ```bash
-    x-eac-ignore: true
+    x-eac-ignore: True
 ```
 
 Example:
@@ -63,7 +63,7 @@ Example:
       responses:
         '200':
           description: Succesful
-    x-eac-ignore: true
+    x-eac-ignore: True
 
 ```
 
