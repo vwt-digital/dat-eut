@@ -28,10 +28,8 @@ Add the following AFTER your e2e test:
       pip install virtualenv
       virtualenv -p python3 venv
       source venv/bin/activate
-      source config/create_cloudbuilds_group_iam.config.sh
       pip install --upgrade google-cloud
       bash eac.sh $(<start_time) ${PROJECT_ID}
-      rm start_time
     fi
   dir: 'yourdir/here'
 
