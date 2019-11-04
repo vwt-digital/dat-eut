@@ -65,7 +65,7 @@ Example:
         - $ref: '#/components/parameters/step'
       responses:
         '200':
-          description: Succesful
+          description: Successful
     x-eac-ignore: True
 
 ```
