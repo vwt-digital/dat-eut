@@ -75,11 +75,9 @@ Make sure you are using connexxion version 2.2.0 or higher when using the ignore
 
 ## Requirements
 For this test to work, the application to be tested needs to use [FLASK Auditlog](https://github.com/vwt-digital/flask-auditlog) & have a valid e2e test running on develop.
-The security_controller also needs to have the following in ```info_from_oAuth2```:
+The security_controller also needs to have the following in ```oAuth2```:
 ```python
-    if result is not None:
-        g.user = result.get('upn', 'e2e-technical-user')
-        g.token = result
+  ('upn', 'e2e-technical-user')
 ```
 
 Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
