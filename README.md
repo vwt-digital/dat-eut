@@ -6,8 +6,7 @@ This project is using Python 3 and Bash
 
 Before you run your e2e test, copy this into your cloudbuild.yaml:
 
-```bash 
-touch start_time
+```bash
 (date +%T)>start_time 
 ```
 (Can also be 0 for global test without time restrictions)
