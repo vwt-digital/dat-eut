@@ -16,6 +16,6 @@ for spec in specs:
 	if not possible_urls:
 		notfound += spec + ' '
 if len(notfound) == 0:
-	sys.exit(True)
+	sys.exit(0)
 else:
 	sys.exit(notfound)
