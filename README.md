@@ -24,13 +24,18 @@ Add the following AFTER your e2e test:
     if [ "$BRANCH_NAME" == "develop" ]; then
       curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.sh
       curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.py
+
+      pip install virtualenv
+      virtualenv -p python3 venv
+      source venv/bin/activate
+      source config/create_cloudbuilds_group_iam.config.sh
+      pip install --upgrade google-cloud
       bash eac.sh $(<start_time) ${PROJECT_ID}
       rm start_time
     fi
-  dir: 'expenses/pipeline'
+  dir: 'yourdir/here'
 
 ```
-Edit the dir: to the same dir as the e2e test.
 
 ### What is it doing?
 
