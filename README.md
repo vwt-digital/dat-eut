@@ -30,6 +30,7 @@ Add the following AFTER your e2e test:
   dir: 'expenses/pipeline'
 
 ```
+Edit the dir: to the same dir as the e2e test.
 
 ### What is it doing?
 
