@@ -74,7 +74,7 @@ Make sure it is linked to the URL directly (and also check Zally).
 Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
 
 ## Requirements
-For this test to work, the application to be tested needs to use [FLASH Auditlog](https://github.com/vwt-digital/flask-auditlog)
+For this test to work, the application to be tested needs to use [FLASK Auditlog](https://github.com/vwt-digital/flask-auditlog) & have a valid e2e test running on develop.
 The security_controller also needs to have the following in ```info_from_oAuth2```:
 ```python
     if result is not None:
@@ -92,27 +92,34 @@ strep=$(gcloud app logs read --limit=1000 | grep "INFO:auditlog.*Url: \(https://
 ```
 Uses the gcloud app logs to get all the auditlogs from the e2e user.
 
-```bash
-api=$(curl -s 'https://'$2'.appspot.com/openapi.json' | (python -c "import sys, json; print(' '.join(list(json.load(sys.stdin)['paths'].keys())))"))
+```python
+api=$(curl -s 'https://'"$2"'.appspot.com/openapi.json' | (python3 -c "
+import sys
+import json
+accepted_keys = ''
+for key, item in list(json.load(sys.stdin)['paths'].items()):
+  if 'x-eac-ignore' not in item.keys():
+    accepted_keys += key + ' '
+print(accepted_keys)"))
 ```
 Uses the json from openapi to get the specurls.
 
 ```bash
-script=$(python eac.py requests.txt specs.txt)
+script=$(python3 eac.py requests.txt specs.txt)
 ```
 Runs eac.py with the requesturls and specurls.
 
 ### euc.py
 ```python
 with open(sys.argv[1], 'r') as f:
-	requests = f.read().splitlines()
+  requests = f.read().splitlines()
 with open(sys.argv[2], 'r') as f:
-	specs = f.read().splitlines()
+  specs = f.read().splitlines()
 ```
 Opens the requests and specs files.
 
 ```python
-	request_url = re.sub("{.*?}", r"([^/]+)", spec) + '$'
-	possible_urls = list(filter(re.compile(request_url).match, requests))
+  request_url = re.sub("{.*?}", r"([^/]+)", spec) + '$'
+  possible_urls = list(filter(re.compile(request_url).match, requests))
 ```
 Compares the spec urls with the request urls. The parameters with {} in specs will be changed to Regex. At the end of the url, a $ is added to mark the end of the url.
