@@ -6,7 +6,7 @@ This project is using Python 3 and Bash
 
 Before you run your e2e test, copy this into your cloudbuild.yaml:
 
-```bash 
+```bash
 (date +%T)>start_time 
 ```
 (Can also be 0 for global test without time restrictions)
@@ -24,9 +24,14 @@ Add the following AFTER your e2e test:
     if [ "$BRANCH_NAME" == "develop" ]; then
       curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.sh
       curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.py
+
+      pip install virtualenv
+      virtualenv -p python3 venv
+      source venv/bin/activate
+      pip install --upgrade google-cloud
       bash eac.sh $(<start_time) ${PROJECT_ID}
     fi
-  dir: 'expenses/pipeline'
+  dir: 'yourdir/here'
 
 ```
 
@@ -44,15 +49,38 @@ Running the eac.sh with the time set before the e2e test and the project id.
  bash eac.sh $(<start_time) ${PROJECT_ID} 
 ```
 
+## Ignore
+
+You can ignore URLs from your API by adding the following to the spec URL in your yaml file:
+```bash
+    x-eac-ignore: True
+```
+
+Example:
+```bash
+
+  /url/to/ignore:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/step'
+      responses:
+        '200':
+          description: Successful
+    x-eac-ignore: True
+
+```
+
+Make sure it is linked to the URL directly (and also check Zally).
+Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
 
 ## Requirements
-For this test to work, the application to be tested needs to use [FLASH Auditlog](https://github.com/vwt-digital/flask-auditlog)
-The security_controller also needs to have the following in ```info_from_oAuth2```:
+For this test to work, the application to be tested needs to use [FLASK Auditlog](https://github.com/vwt-digital/flask-auditlog) & have a valid e2e test running on develop.
+The security_controller also needs to have the following in ```oAuth2```:
 ```python
-    if result is not None:
-        g.user = result.get('upn', 'e2e-technical-user')
-        g.token = result
+  ('upn', 'e2e-technical-user')
 ```
+
+Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
 
 ## Explanation
 
@@ -62,27 +90,34 @@ strep=$(gcloud app logs read --limit=1000 | grep "INFO:auditlog.*Url: \(https://
 ```
 Uses the gcloud app logs to get all the auditlogs from the e2e user.
 
-```bash
-api=$(curl -s 'https://'$2'.appspot.com/openapi.json' | (python -c "import sys, json; print(' '.join(list(json.load(sys.stdin)['paths'].keys())))"))
+```python
+api=$(curl -s 'https://'"$2"'.appspot.com/openapi.json' | (python3 -c "
+import sys
+import json
+accepted_keys = ''
+for key, item in list(json.load(sys.stdin)['paths'].items()):
+  if 'x-eac-ignore' not in item.keys():
+    accepted_keys += key + ' '
+print(accepted_keys)"))
 ```
 Uses the json from openapi to get the specurls.
 
 ```bash
-script=$(python eac.py requests.txt specs.txt)
+script=$(python3 eac.py requests.txt specs.txt)
 ```
 Runs eac.py with the requesturls and specurls.
 
 ### euc.py
 ```python
 with open(sys.argv[1], 'r') as f:
-	requests = f.read().splitlines()
+  requests = f.read().splitlines()
 with open(sys.argv[2], 'r') as f:
-	specs = f.read().splitlines()
+  specs = f.read().splitlines()
 ```
 Opens the requests and specs files.
 
 ```python
-	request_url = re.sub("{.*?}", r"([^/]+)", spec) + '$'
-	possible_urls = list(filter(re.compile(request_url).match, requests))
+  request_url = re.sub("{.*?}", r"([^/]+)", spec) + '$'
+  possible_urls = list(filter(re.compile(request_url).match, requests))
 ```
 Compares the spec urls with the request urls. The parameters with {} in specs will be changed to Regex. At the end of the url, a $ is added to mark the end of the url.
