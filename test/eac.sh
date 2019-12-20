@@ -1,5 +1,5 @@
 #!/bin/bash
-strep=$(gcloud logging read "stderr" --freshness="10m" --format=json | grep "INFO:auditlog.*Url: \(https://.*\) .*e2e-technical-user" | cut -d'|' -f 1 | cut -d" " -f3,8 | cut -d" " -f2,7 | cut -d'/' -f1,4- | sed 's/https://' | sed 's/ /|/')
+strep=$(gcloud app logs read --limit=1000 | grep "INFO:auditlog.*Url: \(https://.*\) .*e2e-technical-user" | cut -d'|' -f 1 | cut -d" " -f2,7 | cut -d'/' -f1,4- | sed 's/https://' | sed 's/ /|/')
 api=$(curl -s 'https://'"$2"'.appspot.com/openapi.json' | (python3 -c "
 import sys
 import json
