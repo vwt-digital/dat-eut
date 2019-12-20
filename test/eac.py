@@ -27,12 +27,12 @@ for spec in specs:
 if len(notfound) == 0:
 	print(0)
 	sys.exit('\nIgnored: ' +  str(int(100 + ((len(ignored) - len(specs)) / len(specs) * 100))) + '% '
-		+ '\nFound All: ' + str(int(100 + ((len(found) - len(specs)) / len(specs) * 100))) + '% '
-		+ '\nFound without Ignored: ' + str(int(100 + ((len(found) - (len(specs) - len(ignored))) / (len(specs) - len(ignored)) * 100))) + '% ')
+		+ '\nDirect Coverage: ' + str(int(100 + ((len(found) - len(specs)) / len(specs) * 100))) + '% '
+		+ '\nTotal Coverage: ' + str(int(100 + ((len(found) - (len(specs) - len(ignored))) / (len(specs) - len(ignored)) * 100))) + '% ')
 else:
 	print(1)
 	sys.exit('\nIgnored: ' +  str(int(100 + ((len(ignored) - len(specs)) / len(specs) * 100))) + '% '
-		+ '\nFound All: ' + str(int(100 + ((len(found) - len(specs)) / len(specs) * 100))) + '% '
-		+ '\nFound without Ignored: ' + str(int(100 + ((len(found) - (len(specs) - len(ignored))) / (len(specs) - len(ignored)) * 100))) + '% '
+		+ '\nDirect Coverage: ' + str(int(100 + ((len(found) - len(specs)) / len(specs) * 100))) + '% '
+		+ '\nTotal Coverage: ' + str(int(100 + ((len(found) - (len(specs) - len(ignored))) / (len(specs) - len(ignored)) * 100))) + '% '
 		+ '\nNot found: '
 		+ '\n' + notfound)
