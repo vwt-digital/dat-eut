@@ -9,7 +9,7 @@ notignored = []
 notfound = ''
 
 with open(sys.argv[1], 'r') as f:
-	requests = f.read().splitlines()
+	requests = [line.strip().split('?')[0] for line in f]
 with open(sys.argv[2], 'r') as f:
 	specs = f.read().splitlines()
 	specs = list(dict.fromkeys(specs))
