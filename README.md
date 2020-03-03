@@ -25,7 +25,7 @@ Add the following AFTER your e2e test:
       curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.sh
       curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.py
 
-      pip install virtualenv
+      pip install virtualenv==16.7.9
       virtualenv -p python3 venv
       source venv/bin/activate
       pip install --upgrade google-cloud
