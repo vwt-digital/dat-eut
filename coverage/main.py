@@ -7,8 +7,11 @@ import re
 import sys
 
 
-def requests_get() -> List:
-    return [line.strip().split('?')[0] for line in subprocess.call('requests.sh')]  # nosec
+def requests_get(time: str = '') -> List:
+    for request in subprocess.check_output(['gcloud', 'app', 'logs', 'read', '--limit=1000']).decode().split('\n'):  # nosec
+        if 'openapi.json' in request:
+            print(request)
+    return [line.strip().split('?')[0] for line in subprocess.check_output(['gcloud', 'app', 'logs', 'read', '--limit=1000'])]  # nosec
 
 
 def resources_get(domain: str) -> Dict:
@@ -25,10 +28,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('domain', type=str, help='Domain to scan')
+    parser.add_argument('time', type=str, help='Time to scan after', nargs='?')
     args = parser.parse_args()
 
     resources = resources_get(args.domain)
-    requests = requests_get()
+    requests = requests_get('13:00:00')
 
     if not resources:
         sys.exit('BREAKING: No resources found.')
@@ -55,3 +59,7 @@ if __name__ == '__main__':
     Passed: {passed} ({round(passed / len(resources) * 100, 2)}%) \n \
     Ignored: {output["ignored"]} ({round(output["ignored"] / len(resources) * 100, 2)}%) \n \
     Failed: {output["failed"]} ({round(output["failed"] / len(resources) * 100, 2)}%)')
+
+    if output['failed'] > 0:
+        sys.exit('Not all resources were tested')
+    sys.exit('Every resource was either tested or ignored')
