@@ -9,4 +9,4 @@ if [ ! -f /start_datetime ]; then
     echo "The start_datetime needs to be passed"
     exit 1
 fi
-python coverage/main.py "${PROJECT_ID}" "$(</start_datetime)"
+python /coverage/main.py "${PROJECT_ID}" "$(</start_datetime)"
