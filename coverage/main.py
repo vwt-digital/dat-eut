@@ -36,6 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('domain', type=str, help='Domain to scan')
     parser.add_argument('datetime', type=str, help='Datetime to scan after')
     args = parser.parse_args()
+
     resources = resources_get(args.domain)
     requests = requests_get(datetime.strptime(args.datetime, '%Y-%m-%d/%H:%M:%S'), args.domain)
 
