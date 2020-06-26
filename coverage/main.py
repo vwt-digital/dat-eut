@@ -1,5 +1,6 @@
 import subprocess  # nosec
 from typing import List, Dict
+from datetime import datetime
 import urllib.request
 import argparse
 import json
@@ -7,11 +8,16 @@ import re
 import sys
 
 
-def requests_get(time: str = '') -> List:
+def requests_get(before_datetime: datetime, domain: str) -> List:
+    requests = []
+
     for request in subprocess.check_output(['gcloud', 'app', 'logs', 'read', '--limit=1000']).decode().split('\n'):  # nosec
-        if 'openapi.json' in request:
-            print(request)
-    return [line.strip().split('?')[0] for line in subprocess.check_output(['gcloud', 'app', 'logs', 'read', '--limit=1000'])]  # nosec
+        if 'e2e-technical-user' in request and 'UPN:' in request:
+            if datetime.strptime('/'.join(request.split(' ')[0:2]), '%Y-%m-%d/%H:%M:%S') > before_datetime:
+                request_resource = re.search(f'{domain}.appspot.com/(.*?)\s+', request) # noqa
+                requests.append(request_resource.group(1).strip().split('?')[0])
+
+    return requests
 
 
 def resources_get(domain: str) -> Dict:
@@ -28,23 +34,25 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('domain', type=str, help='Domain to scan')
-    parser.add_argument('time', type=str, help='Time to scan after', nargs='?')
+    parser.add_argument('datetime', type=str, help='Datetime to scan after')
     args = parser.parse_args()
-
     resources = resources_get(args.domain)
-    requests = requests_get('13:00:00')
+    requests = requests_get(datetime.strptime(args.datetime, '%Y-%m-%d/%H:%M:%S'), args.domain)
 
     if not resources:
-        sys.exit('BREAKING: No resources found.')
-
-    if not requests:
-        print('WARNING: List of requests is empty.')
+        print('BREAKING: No resources found.')
+        sys.exit(1)
 
     output = {'ignored': 0, 'failed': 0}
 
     for resource, ignored in resources.items():
-        request_url = re.sub("{.*?}", r"([^/]+)", resource) + '$'
-        possible_urls = list(filter(re.compile(request_url).match, requests))
+        possible_urls = []
+
+        if requests:
+            request_url = re.sub("{.*?}", r"([^/]+)", resource) + '$'
+            possible_urls = list(filter(re.compile(request_url).match, requests))
+        else:
+            print('WARNING: List of requests is empty.')
 
         if ignored:
             print(f'\033[93m\t{resource} has been ignored\033[0m\n')
@@ -61,5 +69,8 @@ if __name__ == '__main__':
     Failed: {output["failed"]} ({round(output["failed"] / len(resources) * 100, 2)}%)')
 
     if output['failed'] > 0:
-        sys.exit('Not all resources were tested')
-    sys.exit('Every resource was either tested or ignored')
+        print('Not all resources were tested')
+        sys.exit(1)
+
+    print('Every resource was either tested or ignored')
+    sys.exit(0)
