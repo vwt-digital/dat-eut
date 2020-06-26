@@ -12,9 +12,9 @@ def requests_get(before_datetime: datetime, domain: str) -> List:
     requests = []
 
     for request in subprocess.check_output(['gcloud', 'app', 'logs', 'read', '--limit=1000']).decode().split('\n'):  # nosec
-        if 'e2e-technical-user' in request and 'UPN:' in request:
+        if 'UPN: e2e-technical-user' in request:
             if datetime.strptime('/'.join(request.split(' ')[0:2]), '%Y-%m-%d/%H:%M:%S') > before_datetime:
-                request_resource = re.search(f'{domain}.appspot.com/(.*?)\s+', request) # noqa
+                request_resource = re.search(f'{domain}.appspot.com(.*?)\s+', request) # noqa
                 requests.append(request_resource.group(1).strip().split('?')[0])
 
     return requests
