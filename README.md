@@ -1,52 +1,52 @@
-# e2e Api Coverage Test
+# E2e Api Coverage Test
 
-This project is using Python 3 and Bash
+Test the coverage of an e2e test using an API spec
+## Usage for cloudbuild
 
-## Usage
-
-Before you run your e2e test, copy this into your cloudbuild.yaml:
+Use this command before running the e2e test:
 
 ```bash
-(date +%T)>start_time 
+(date '+%Y-%m-%d/%H:%M:%S')>start_datetime 
 ```
-(Can also be 0 for global test without time restrictions)
-
-
 Add the following AFTER your e2e test:
-
 ```bash
-
 - name: 'gcr.io/cloud-builders/gcloud'
+  id: 'e2e api coverage request gathering'
   entrypoint: 'bash'
   args:
-  - '-c'
-  - |
-    if [ "$BRANCH_NAME" == "develop" ]; then
-      curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.sh
-      curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.py
+    - '-c'
+    - |
+      if [ "$BRANCH_NAME" == "develop" ]; then
+        (gcloud app logs read --limit=1000)>requests
+      fi
+  dir: 'yourdir/here'
 
-      pip install virtualenv==16.7.9
-      virtualenv -p python3 venv
-      source venv/bin/activate
-      pip install --upgrade google-cloud
-      bash eac.sh $(<start_time) ${PROJECT_ID}
-    fi
+- name: 'eu.gcr.io/vwt-p-gew1-dat-cloudbuilders/cloudbuilder-eac'
+  id: 'e2e api coverage test'
+  args: ['${PROJECT_ID}.appspot.com', '${BRANCH_NAME}', 'start_datetime', 'requests']
   dir: 'yourdir/here'
 
 ```
 
-### What is it doing?
+## Usage for local test
 
-Copying the eac files. eac.sh will get the logs, eac.py with compare the requests to the specurls.
+`main.py` has three arguments: 
+
+domain: domain that will be used
+
+datetime: datetime as string ('+%Y-%m-%d/%H:%M:%S')
+
+gather_file (optional): file containing requests. If this is not passed, it will run and use `gcloud app logs read --limit=1000`.
+
+<br>
+Run this when using `main.py`:
 
 ```bash
-      curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.sh
-      curl -LJO https://raw.githubusercontent.com/vwt-digital/e2e-api-coverage/develop/test/eac.py
+python main.py domain_name.appspot.com start_datetime (gather_file)
 ```
-
-Running the eac.sh with the time set before the e2e test and the project id.
+When using the container:
 ```bash
- bash eac.sh $(<start_time) ${PROJECT_ID} 
+docker run -v {files_location}:/workspace eu.gcr.io/vwt-p-gew1-dat-cloudbuilders/cloudbuilder-eac:latest domain_name develop /workspace/start_datetime (/workspace/requests)
 ```
 
 ## Ignore
@@ -76,48 +76,8 @@ Make sure you are using connexxion version 2.2.0 or higher when using the ignore
 ## Requirements
 For this test to work, the application to be tested needs to use [FLASK Auditlog](https://github.com/vwt-digital/flask-auditlog) & have a valid e2e test running on develop.
 The security_controller also needs to have the following in ```oAuth2```:
-```python
+```
   ('upn', 'e2e-technical-user')
 ```
 
 Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
-
-## Explanation
-
-### euc.sh
-```bash
-strep=$(gcloud app logs read --limit=1000 | grep "INFO:auditlog.*Url: \(https://.*\) .*e2e-technical-user" | cut -d'|' -f 1 | cut -d" " -f2,7 | cut -d'/' -f1,4- | sed 's/https://' | sed 's/ /|/')
-```
-Uses the gcloud app logs to get all the auditlogs from the e2e user.
-
-```python
-api=$(curl -s 'https://'"$2"'.appspot.com/openapi.json' | (python3 -c "
-import sys
-import json
-accepted_keys = ''
-for key, item in list(json.load(sys.stdin)['paths'].items()):
-  if 'x-eac-ignore' not in item.keys():
-    accepted_keys += key + ' '
-print(accepted_keys)"))
-```
-Uses the json from openapi to get the specurls.
-
-```bash
-script=$(python3 eac.py requests.txt specs.txt)
-```
-Runs eac.py with the requesturls and specurls.
-
-### euc.py
-```python
-with open(sys.argv[1], 'r') as f:
-  requests = f.read().splitlines()
-with open(sys.argv[2], 'r') as f:
-  specs = f.read().splitlines()
-```
-Opens the requests and specs files.
-
-```python
-  request_url = re.sub("{.*?}", r"([^/]+)", spec) + '$'
-  possible_urls = list(filter(re.compile(request_url).match, requests))
-```
-Compares the spec urls with the request urls. The parameters with {} in specs will be changed to Regex. At the end of the url, a $ is added to mark the end of the url.
