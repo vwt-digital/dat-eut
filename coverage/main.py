@@ -44,6 +44,8 @@ if __name__ == '__main__':
     parser.add_argument('domain', type=str, help='Domain to scan')
     parser.add_argument('datetime', type=str, help='Datetime to scan after')
     parser.add_argument("gather_file", type=str, nargs='?', help="Activate local request gathering.")
+    parser.add_argument("--pass",  dest='force_pass', action='store_true', default=False,
+                        help="Activate local request gathering.")
     args = parser.parse_args()
 
     resources = resources_get(args.domain)
@@ -82,13 +84,19 @@ if __name__ == '__main__':
     Ignored: {output["ignored"]} ({round(output["ignored"] / len(resources) * 100, 2)}%) \n \
     Failed: {output["failed"]} ({round(output["failed"] / len(resources) * 100, 2)}%)')
 
+    exit_code = 0
+
     if output['failed'] > 0:
         print('Not all resources were tested')
-        sys.exit(1)
+        exit_code = 1
 
     if round(output["ignored"] / len(resources) * 100, 2) > 50:
         print('You cannot ignore more than 50% of the endpoints')
-        sys.exit(1)
+        exit_code = 1
+
+    if args.force_pass:
+        print('FORCING PASS')
+        exit_code = 0
 
     print('Every resource was either tested or ignored')
-    sys.exit(0)
+    sys.exit(exit_code)
