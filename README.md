@@ -17,13 +17,13 @@ Add the following AFTER your e2e test:
     - '-c'
     - |
       if [ "$BRANCH_NAME" == "develop" ]; then
-        gcloud app logs read --limit=1000 > requests
+        (gcloud app logs read --limit=1000)>requests
       fi
   dir: 'yourdir/here'
 
 - name: 'eu.gcr.io/vwt-p-gew1-dat-cloudbuilders/cloudbuilder-eac'
   id: 'e2e api coverage test'
-  args: ['${PROJECT_ID}.appspot.com', '${BRANCH_NAME}', 'start_datetime_file', 'requests_file']
+  args: ['${PROJECT_ID}.appspot.com', '${BRANCH_NAME}', 'start_datetime', 'requests']
   dir: 'yourdir/here'
 
 ```
