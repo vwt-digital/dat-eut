@@ -22,7 +22,7 @@ def filter_requests(request_raw: List, domain: str, before_datetime: datetime) -
     for request in request_raw:
         if 'UPN: e2e-technical-user' in request and datetime.strptime('/'.join(request.split(' ')[0:2]), '%Y-%m-%d/%H:%M:%S') > \
                 before_datetime:
-            request_resource = re.search(f'{domain}.appspot.com(.*?)\s+', request)  # noqa
+            request_resource = re.search(f'{domain}(.*?)\s+', request)  # noqa
             requests_filtered.append(request_resource.group(1).strip().split('?')[0])
 
     return requests_filtered
@@ -31,7 +31,7 @@ def filter_requests(request_raw: List, domain: str, before_datetime: datetime) -
 def resources_get(domain: str) -> Dict:
     resources_filtered = {}
 
-    with urllib.request.urlopen(f'https://{domain}.appspot.com/openapi.json') as url:  # nosec
+    with urllib.request.urlopen(f'https://{domain}/openapi.json') as url:  # nosec
         for resource, data in json.loads(url.read().decode())['paths'].items():
             resources_filtered[resource] = data.get('x-eac-ignore', False)
 
