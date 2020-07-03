@@ -19,7 +19,7 @@ Add the following AFTER your e2e test:
       if [ "$BRANCH_NAME" == "develop" ]; then
         gcloud app logs read --limit=1000 > requests
       fi
-   dir: 'yourdir/here'
+  dir: 'yourdir/here'
 
 - name: 'eu.gcr.io/vwt-p-gew1-dat-cloudbuilders/cloudbuilder-eac'
   id: 'e2e api coverage test'
