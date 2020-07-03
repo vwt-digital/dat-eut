@@ -9,11 +9,11 @@ import sys
 
 
 def requests_get_local() -> List:
-    return subprocess.check_output(['gcloud', 'app', 'logs', 'read', '--limit=1000']).decode().split('\n')
+    return subprocess.check_output(['gcloud', 'app', 'logs', 'read', '--limit=1000']).decode().split('\n')  # nosec
 
 
-def requests_get_file() -> List:
-    return open("/requests.txt").readlines()
+def requests_get_file(file: str) -> List:
+    return open(file).readlines()
 
 
 def filter_requests(request_raw: List, domain: str, before_datetime: datetime) -> List:
@@ -43,17 +43,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('domain', type=str, help='Domain to scan')
     parser.add_argument('datetime', type=str, help='Datetime to scan after')
-    parser.add_argument("--gather", type=bool, nargs='?', dest='gather',
-                        const=True, default=False,
-                        help="Activate local request gathering.")
+    parser.add_argument("gather_file", type=str, nargs='?', help="Activate local request gathering.")
     args = parser.parse_args()
 
     resources = resources_get(args.domain)
-    
-    if args.gather:
-        requests = filter_requests(requests_get_local(), args.domain, datetime.strptime(args.datetime, '%Y-%m-%d/%H:%M:%S'))
+
+    if args.gather_file:
+        requests = filter_requests(requests_get_file(args.gather_file), args.domain, datetime.strptime(args.datetime, '%Y-%m-%d/%H:%M:%S'))
     else:
-        requests = filter_requests(requests_get_file(), args.domain, datetime.strptime(args.datetime, '%Y-%m-%d/%H:%M:%S'))
+        requests = filter_requests(requests_get_local(), args.domain, datetime.strptime(args.datetime, '%Y-%m-%d/%H:%M:%S'))
 
     if not resources:
         print('BREAKING: No resources found.')

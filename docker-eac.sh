@@ -10,4 +10,4 @@ if [ ! -f "$3" ]; then
     exit 1
 fi
 
-python /coverage/main.py "$1" "$(<"$3")"
+python /coverage/main.py "$1" "$(<"$3")" "$4"
