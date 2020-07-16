@@ -38,7 +38,8 @@ datetime: datetime as string ('+%Y-%m-%d/%H:%M:%S')
 
 gather_file (optional): file containing requests. If this is not passed, it will run and use `gcloud app logs read --limit=1000`.
 
-<br>
+<br />
+
 Run this when using `main.py`:
 
 ```bash
@@ -48,6 +49,13 @@ When using the container:
 ```bash
 docker run -v {files_location}:/workspace eu.gcr.io/vwt-p-gew1-dat-cloudbuilders/cloudbuilder-eac:latest domain_name develop /workspace/start_datetime (/workspace/requests)
 ```
+
+## Exit functionality
+
+The test will fail when either:
+- One or more of the given resources have neither been tested nor ignored, given the `-pass` flag has not been passed.
+- The total percentage of ignored resources is higher than 50%, given the `-pass` flag has not been passed.
+- No resources from the spec file can be found.
 
 ## Ignore
 
@@ -70,8 +78,17 @@ Example:
 
 ```
 
-Make sure it is linked to the URL directly (and also check Zally).
-Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
+<em>Make sure it is linked to the URL directly (and also check Zally).
+Make sure you are using connexxion version 2.2.0 or higher when using the ignore.</em>
+
+<br />
+
+You can add the `--pass` flag when running the test to ensure that the e2e api coverage test always returns 0:
+
+```
+app.app.com develop start_datetime requests --pass
+```
+<em>This flag should not be used when the requirements are supported and used.</em>
 
 ## Requirements
 For this test to work, the application to be tested needs to use [FLASK Auditlog](https://github.com/vwt-digital/flask-auditlog) & have a valid e2e test running on develop.
@@ -80,4 +97,4 @@ The security_controller also needs to have the following in ```oAuth2```:
   ('upn', 'e2e-technical-user')
 ```
 
-Make sure you are using connexxion version 2.2.0 or higher when using the ignore.
+<em>Make sure you are using connexxion version 2.2.0 or higher when using the ignore.</em>
