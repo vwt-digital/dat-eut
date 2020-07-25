@@ -98,5 +98,6 @@ if __name__ == '__main__':
         print('FORCING PASS')
         exit_code = 0
 
-    print('Every resource was either tested or ignored')
+    if not exit_code and not args.force_pass:
+          print('Every resource was either tested or ignored')
     sys.exit(exit_code)
